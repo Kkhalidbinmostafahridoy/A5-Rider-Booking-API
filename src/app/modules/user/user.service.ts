@@ -1,8 +1,8 @@
-import tr from "zod/v4/locales/tr.cjs";
+// import tr from "zod/v4/locales/tr.cjs";
 import { IUser } from "./user.interface";
 import { User } from "./user.model";
-import AppError from "../../errorHelpers/AppError";
-import httpStatus from "http-status-codes";
+// import AppError from "../../errorHelpers/AppError";
+// import httpStatus from "http-status-codes";
 
 const createUser = async (payload: Partial<IUser>) => {
   const { name, email, password } = payload;
