@@ -1,11 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import AppError from "../../errorHelpers/AppError";
-import { IUser } from "../user/user.interface";
+import { IsActive, IUser } from "../user/user.interface";
 import { User } from "../user/user.model";
 import httpStatus from "http-status-codes";
 import bcryptjs from "bcryptjs";
-import jwt from "jsonwebtoken";
-import { generateToken } from "../../utils/jwt";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import { generateToken, verifyToken } from "../../utils/jwt";
 import { envVars } from "../../config/env";
+import { createUserTokens } from "../../utils/userTokens";
 
 const credentialsLogin = async (payload: Partial<IUser>) => {
   const { email, password } = payload;
@@ -22,6 +24,42 @@ const credentialsLogin = async (payload: Partial<IUser>) => {
 
   if (!isPasswordMatch) {
     throw new AppError(httpStatus.UNAUTHORIZED, "Incorrect password");
+  }
+
+  const userTokens = createUserTokens(isUserExists);
+
+  const { password: pass, ...rest } = isUserExists.toObject();
+  return {
+    accessToken: userTokens.accessToken,
+    refreshToken: userTokens.refreshToken,
+    user: rest,
+  };
+};
+
+const getNewAccessToken = async (refreshToken: string) => {
+  const verifiedRefreshToken = verifyToken(
+    refreshToken,
+    envVars.JWT_REFRESH_SECRET
+  ) as JwtPayload;
+
+  const isUserExists = await User.findOne({
+    email: verifiedRefreshToken.email,
+  });
+
+  if (!isUserExists) {
+    throw new AppError(httpStatus.BAD_REQUEST, "user does not exists");
+  }
+  if (
+    isUserExists.isActive === IsActive.Blocked ||
+    isUserExists.isActive === IsActive.Inactive
+  ) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      `user is ${isUserExists.isActive}`
+    );
+  }
+  if (isUserExists.isDeleted) {
+    throw new AppError(httpStatus.BAD_REQUEST, "user is deleted");
   }
 
   const jwtPayload = {
@@ -42,4 +80,5 @@ const credentialsLogin = async (payload: Partial<IUser>) => {
 
 export const AuthServices = {
   credentialsLogin,
+  getNewAccessToken,
 };
