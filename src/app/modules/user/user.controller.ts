@@ -9,6 +9,7 @@ import { success } from "zod";
 import tr from "zod/v4/locales/tr.cjs";
 import { id } from "zod/v4/locales/index.cjs";
 import { sendResponse } from "../../utils/sendResponse";
+import { User } from "./user.model";
 
 const createUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -54,13 +55,29 @@ const updatedUser = catchAsync(
 const checkBlockedStatus = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
-    const isBlocked = await UserServices.checkIfUserBlocked(id);
+
+    const user = await User.findById(id);
+
+    if (!user) {
+      return sendResponse(res, {
+        success: false,
+        statusCode: httpStatus.NOT_FOUND,
+        message: "User not found",
+        data: null,
+      });
+    }
+
+    const isActive = user.isActive;
+    const isBlocked = isActive === "BLOCKED";
+
+    const message = isBlocked ? " BLOCKED User " : " ACTIVE User ";
+    const statusCode = isBlocked ? httpStatus.FORBIDDEN : httpStatus.OK;
 
     sendResponse(res, {
       success: true,
-      statusCode: httpStatus.FORBIDDEN,
-      message: `User is ${isBlocked ? "blocked" : "not blocked"}`,
-      data: { isBlocked },
+      statusCode,
+      message,
+      data: { isActive },
     });
   }
 );
