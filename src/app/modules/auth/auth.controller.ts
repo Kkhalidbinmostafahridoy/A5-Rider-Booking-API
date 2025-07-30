@@ -6,20 +6,13 @@ import httpStatus from "http-status-codes";
 import { AuthServices } from "./auth.service";
 import AppError from "../../errorHelpers/AppError";
 import { fa } from "zod/v4/locales/index.cjs";
+import { setAuthCookie } from "../../utils/setCookie";
 
 const credentialsLogin = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const loginInfo = await AuthServices.credentialsLogin(req.body);
 
-    res.cookie("accessToken", loginInfo.accessToken, {
-      httpOnly: true,
-      secure: false,
-    });
-
-    res.cookie("refreshToken", loginInfo.refreshToken, {
-      httpOnly: true,
-      secure: false,
-    });
+    setAuthCookie(res, loginInfo);
 
     sendResponse(res, {
       success: true,
@@ -41,6 +34,12 @@ const getNewAccessToken = catchAsync(
       );
     }
     const tokenInfo = await AuthServices.getNewAccessToken(refreshToken);
+
+    // res.cookie("accessToken", tokenInfo.accessToken, {
+    //   httpOnly: true,
+    //   secure: false,
+    // });
+    setAuthCookie(res, tokenInfo);
 
     sendResponse(res, {
       success: true,
