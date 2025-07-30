@@ -27,7 +27,7 @@ export interface IUser extends Document {
   address?: string;
   isDeleted?: string;
   isActive?: IsActive;
-  isVerified?: string;
+  isVerified?: boolean;
   role: Role;
   auths: IAuthProvider[];
   rider?: Types.ObjectId | null;
