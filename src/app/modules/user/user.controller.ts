@@ -10,6 +10,9 @@ import tr from "zod/v4/locales/tr.cjs";
 import { id } from "zod/v4/locales/index.cjs";
 import { sendResponse } from "../../utils/sendResponse";
 import { User } from "./user.model";
+import { verifyToken } from "../../utils/jwt";
+import { envVars } from "../../config/env";
+import { JwtPayload } from "jsonwebtoken";
 
 const createUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -41,13 +44,19 @@ const getAllUsers = catchAsync(
 const updatedUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const id = req.params.id;
-    const updatedUser = await UserServices.updateUser(id, req.body);
+    const token = req.headers.authorization;
+    const VerifiedToken = verifyToken(
+      token as string,
+      envVars.JWT_ACCESS_SECRET
+    ) as JwtPayload;
+    const payload = req.body;
+    const user = await UserServices.updateUser(id, payload, VerifiedToken);
 
     sendResponse(res, {
       success: true,
       statusCode: httpStatus.OK,
       message: "User updated successfully",
-      data: updatedUser,
+      data: user,
     });
   }
 );
