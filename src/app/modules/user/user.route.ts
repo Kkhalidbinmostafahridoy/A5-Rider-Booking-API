@@ -28,7 +28,7 @@ router.patch(
   userControllers.updatedUser
 );
 
-router.get("/:id", userControllers.checkBlockedStatus);
+router.get("/:id", checkAuth(Role.Admin), userControllers.checkBlockedStatus);
 router.delete("/:id", checkAuth(Role.Admin), userControllers.deleteUser);
 
 export const UserRoutes = router;

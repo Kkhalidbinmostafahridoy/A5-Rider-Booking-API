@@ -21,6 +21,7 @@ export const checkAuth =
         throw new AppError(403, "You are not authorized to access this route");
       }
 
+      req.user = verifiedToken;
       next();
     } catch (error) {
       next(error);

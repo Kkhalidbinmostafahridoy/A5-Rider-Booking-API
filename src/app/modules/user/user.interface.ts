@@ -1,4 +1,4 @@
-import { Types, Document } from "mongoose";
+import { Types } from "mongoose";
 
 export interface IAuthProvider {
   provider: "google" | "credentials";
@@ -19,7 +19,8 @@ export enum IsActive {
   Blocked = "BLOCKED",
 }
 
-export interface IUser extends Document {
+export interface IUser {
+  _id?: Types.ObjectId;
   name: string;
   email: string;
   password?: string;
