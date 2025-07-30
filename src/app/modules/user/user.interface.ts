@@ -10,6 +10,7 @@ export enum Role {
   User = "USER",
   Rider = "RIDER",
   Driver = "DRIVER",
+  SuperAdmin = "SuperAdmin",
 }
 
 export enum IsActive {

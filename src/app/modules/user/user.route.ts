@@ -24,11 +24,11 @@ router.get("/all-users", checkAuth(Role.Admin), userControllers.getAllUsers);
 
 router.patch(
   "/:id",
-  validateRequest(UpdateZodSchema),
+  checkAuth(...Object.values(Role)),
   userControllers.updatedUser
 );
 
 router.get("/:id", userControllers.checkBlockedStatus);
-router.delete("/:id", userControllers.deleteUser);
+router.delete("/:id", checkAuth(Role.Admin), userControllers.deleteUser);
 
 export const UserRoutes = router;
