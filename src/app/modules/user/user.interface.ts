@@ -1,7 +1,7 @@
 import { Types, Document } from "mongoose";
 
 export interface IAuthProvider {
-  provider: string;
+  provider: "google" | "credentials";
   providerId: string;
 }
 
