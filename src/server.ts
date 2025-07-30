@@ -3,6 +3,7 @@ import { Server } from "http";
 import mongoose from "mongoose";
 import app from "./app";
 import { envVars } from "./app/config/env";
+import { seedAdmin } from "./app/utils/seedAdmin";
 
 let server: Server;
 
@@ -17,7 +18,10 @@ const startServer = async () => {
     console.error(error);
   }
 };
-startServer();
+(async () => {
+  await startServer();
+  await seedAdmin();
+})();
 
 process.on("unCaught Exception", (err) => {
   console.log("unCaught Exception detection......server shutting down", err);

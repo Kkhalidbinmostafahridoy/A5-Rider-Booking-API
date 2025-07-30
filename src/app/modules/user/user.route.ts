@@ -5,6 +5,12 @@ import { userControllers } from "./user.controller";
 import { createUserZodSchema, UpdateZodSchema } from "./user.validation";
 // import { AnyZodObject } from "zod";
 import { validateRequest } from "../../middlewares/validatorRequest";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import AppError from "../../errorHelpers/AppError";
+import { Role } from "./user.interface";
+import { verifyToken } from "../../utils/jwt";
+import { envVars } from "../../config/env";
+import { checkAuth } from "../../middlewares/checkAuth";
 
 const router = Router();
 
@@ -14,7 +20,8 @@ router.post(
   userControllers.createUser
 );
 
-router.get("/all-users", userControllers.getAllUsers);
+router.get("/all-users", checkAuth(Role.Admin), userControllers.getAllUsers);
+
 router.patch(
   "/:id",
   validateRequest(UpdateZodSchema),
