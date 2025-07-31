@@ -1,13 +1,12 @@
 import { Router } from "express";
 import { checkAuth } from "../../middlewares/checkAuth";
-import { riderController } from "./rider.controller";
+import { getRideHistory, riderController } from "./rider.controller";
 import { Role } from "../user/user.interface";
 import { validateRequest } from "../../middlewares/validatorRequest";
 import { requestRideSchema } from "./ride.validation";
 
 const router = Router();
 
-// Rider actions
 router.post(
   "/request",
   checkAuth(Role.Rider),
@@ -21,6 +20,6 @@ router.patch(
   riderController.cancelRide
 );
 
-router.get("/history", checkAuth(Role.Rider), riderController.getRideHistory);
+router.get("/history", checkAuth(Role.Rider), getRideHistory);
 
 export const RiderRoutes = router;

@@ -12,6 +12,7 @@ export enum RideStatus {
   InTransit = "in_transit",
   Completed = "completed",
   Cancelled = "cancelled",
+  status = "status",
 }
 
 export interface IRide {

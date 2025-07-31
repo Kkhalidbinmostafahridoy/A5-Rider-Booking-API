@@ -2,7 +2,6 @@ import { NextFunction, Request, Response } from "express";
 import AppError from "../errorHelpers/AppError";
 import { verifyToken } from "../utils/jwt";
 import { envVars } from "../config/env";
-import { JwtPayload } from "jsonwebtoken";
 import { User } from "../modules/user/user.model";
 import { IsActive } from "../modules/user/user.interface";
 import httpStatus from "http-status-codes";
@@ -13,38 +12,50 @@ export const checkAuth =
     try {
       const accessToken = req.headers.authorization;
       if (!accessToken) {
-        throw new AppError(httpStatus.BAD_REQUEST, "No token recieved");
+        throw new AppError(httpStatus.BAD_REQUEST, "No token received");
       }
-      const verifiedToken = verifyToken(
-        accessToken,
-        envVars.JWT_ACCESS_SECRET
-      ) as JwtPayload;
 
-      const isUserExists = await User.findOne({
-        email: verifiedToken.email,
-      });
+      const decoded = verifyToken(accessToken, envVars.JWT_ACCESS_SECRET) as {
+        userId: string;
+        email: string;
+        role: string;
+        iat?: number;
+        exp?: number;
+      };
 
-      if (!isUserExists) {
-        throw new AppError(httpStatus.BAD_REQUEST, "user does not exists");
+      if (!decoded.userId) {
+        throw new AppError(httpStatus.UNAUTHORIZED, "Invalid token: no userId");
       }
+
+      const user = await User.findById(decoded.userId);
+      if (!user) {
+        throw new AppError(httpStatus.BAD_REQUEST, "User does not exist");
+      }
+
+      if (user.isDeleted) {
+        throw new AppError(httpStatus.BAD_REQUEST, "User is deleted");
+      }
+
       if (
-        isUserExists.isActive === IsActive.Blocked ||
-        isUserExists.isActive === IsActive.Inactive
+        user.isActive === IsActive.Blocked ||
+        user.isActive === IsActive.Inactive
       ) {
+        throw new AppError(httpStatus.BAD_REQUEST, `User is ${user.isActive}`);
+      }
+
+      if (!authRoles.includes(decoded.role)) {
         throw new AppError(
-          httpStatus.BAD_REQUEST,
-          `user is ${isUserExists.isActive}`
+          httpStatus.FORBIDDEN,
+          "You are not authorized to access this route"
         );
       }
-      if (isUserExists.isDeleted) {
-        throw new AppError(httpStatus.BAD_REQUEST, "user is deleted");
-      }
 
-      if (!authRoles.includes(verifiedToken.role)) {
-        throw new AppError(403, "You are not authorized to access this route");
-      }
+      req.user = {
+        userId: decoded.userId,
+        role: decoded.role,
+        email: decoded.email,
+      };
 
-      req.user = verifiedToken;
       next();
     } catch (error) {
       next(error);
