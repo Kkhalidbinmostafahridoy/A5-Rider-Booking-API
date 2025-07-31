@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import AppError from "../../errorHelpers/AppError";
 import { IsActive, IUser } from "../user/user.interface";
@@ -11,6 +12,7 @@ import {
   createNewAccessAndRefreshToken,
   createUserTokens,
 } from "../../utils/userTokens";
+import { de } from "zod/v4/locales/index.cjs";
 
 const credentialsLogin = async (payload: Partial<IUser>) => {
   const { email, password } = payload;
@@ -39,6 +41,44 @@ const credentialsLogin = async (payload: Partial<IUser>) => {
   };
 };
 
+const registerUser = async (payload: Partial<IUser>) => {
+  const { name, email, password, phone, address, role } = payload;
+
+  const isUserExists = await User.findOne({ email });
+  if (isUserExists) {
+    throw new AppError(
+      httpStatus.CONFLICT,
+      "A user with this email already exists."
+    );
+  }
+
+  const hashedPassword = await bcryptjs.hash(
+    password as string,
+    Number(envVars.BCRYPT_SALT_ROUND)
+  );
+
+  const userData = {
+    name,
+    email,
+    password: hashedPassword,
+    phone,
+    address,
+    role,
+  };
+
+  const newUser = await User.create(userData);
+
+  const userTokens = createUserTokens(newUser);
+
+  const { password: pass, ...rest } = newUser.toObject();
+
+  return {
+    accessToken: userTokens.accessToken,
+    refreshToken: userTokens.refreshToken,
+    user: rest,
+  };
+};
+
 const getNewAccessToken = async (refreshToken: string) => {
   const NewAccessToken = await createNewAccessAndRefreshToken(refreshToken);
 
@@ -47,7 +87,30 @@ const getNewAccessToken = async (refreshToken: string) => {
   };
 };
 
+const resetPassword = async (
+  oldPassword: string,
+  newPassword: string,
+  decodedToken: JwtPayload
+) => {
+  const user = await User.findById(decodedToken.userId);
+  const isOldPasswordMatch = await bcryptjs.compare(
+    oldPassword,
+    user?.password as string
+  );
+  if (!isOldPasswordMatch) {
+    throw new AppError(httpStatus.UNAUTHORIZED, "Old Password doesn't match");
+  }
+
+  user!.password = await bcryptjs.hash(
+    newPassword,
+    Number(envVars.BCRYPT_SALT_ROUND)
+  );
+  user?.save();
+};
+
 export const AuthServices = {
   credentialsLogin,
   getNewAccessToken,
+  resetPassword,
+  registerUser,
 };
