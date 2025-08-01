@@ -44,6 +44,8 @@ export const checkAuth =
       }
 
       if (!authRoles.includes(decoded.role)) {
+        console.log("Decoded role from token:", decoded.role);
+        console.log("Authorized roles:", authRoles);
         throw new AppError(
           httpStatus.FORBIDDEN,
           "You are not authorized to access this route"
