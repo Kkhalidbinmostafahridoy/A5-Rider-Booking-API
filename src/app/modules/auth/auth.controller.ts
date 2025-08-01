@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextFunction, Request, Response } from "express";
 import { catchAsync } from "../../utils/catchAsync";
@@ -90,7 +91,7 @@ const resetPassword = catchAsync(
 
     const oldPassword = req.body.oldPassword;
 
-    const decodedToken = req.user;
+    const decodedToken = (req as any).user; //user error line vercel thats why user req as any
 
     await AuthServices.resetPassword(oldPassword, newPassword, decodedToken);
 

@@ -44,7 +44,7 @@ const getAllUsers = catchAsync(
 const updatedUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const id = req.params.id;
-    const verifiedToken = req.user;
+    const verifiedToken = (req as any).user; //user error line vercel thats why user req as any
 
     const payload = req.body;
     const user = await UserServices.updateUser(id, payload, verifiedToken);

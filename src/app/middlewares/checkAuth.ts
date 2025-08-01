@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextFunction, Request, Response } from "express";
 import AppError from "../errorHelpers/AppError";
 import { verifyToken } from "../utils/jwt";
@@ -52,7 +53,8 @@ export const checkAuth =
         );
       }
 
-      req.user = {
+      (req as any).user = {
+        //user error line vercel thats why user req as any
         userId: decoded.userId,
         role: decoded.role,
         email: decoded.email,

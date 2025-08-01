@@ -13,7 +13,7 @@ export const requestRide = async (
   next: NextFunction
 ) => {
   try {
-    const riderId = req.user?.userId;
+    const riderId = (req as any).user?.userId; //user error line vercel thats why user req as any
 
     if (!riderId) {
       throw new AppError(httpStatus.UNAUTHORIZED, "Rider ID missing");
@@ -68,7 +68,7 @@ export const cancelRide = async (
 ) => {
   try {
     const { rideId } = req.params;
-    const userId = req.user?.userId;
+    const userId = (req as any).user?.userId; //user error line vercel thats why user req as any
 
     console.log("Cancelling ride with ID:", rideId);
 
@@ -97,13 +97,13 @@ export const cancelRide = async (
     }
 
     const now = new Date();
-    const createdAt = ride.createdAt || now;
+    const createdAt = (ride as any).createdAt || now; //rider error line vercel thats why use rider as any
     const diffMinutes = (now.getTime() - createdAt.getTime()) / (1000 * 60);
     if (diffMinutes > 10) {
       throw new AppError(400, "Cancel window expired (10 mins)");
     }
 
-    ride.status = "cancelled";
+    (ride as any).status = "cancelled"; //rider error line vercel thats why use rider as any
     ride.statusTimestamps.cancelledAt = new Date();
 
     await ride.save();
@@ -121,7 +121,7 @@ export const cancelRide = async (
 
 export const getRideHistory = catchAsync(
   async (req: Request, res: Response) => {
-    const riderId = req.user?.userId;
+    const riderId = (req as any).user?.userId; //user error line vercel thats why user req as any
 
     if (!riderId) {
       throw new AppError(401, "Rider ID missing");

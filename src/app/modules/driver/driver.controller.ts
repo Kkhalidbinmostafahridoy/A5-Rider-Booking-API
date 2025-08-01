@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextFunction, Request, Response } from "express";
 import bcryptjs from "bcryptjs";
@@ -95,8 +96,8 @@ const registerDriver = catchAsync(async (req: Request, res: Response) => {
 const acceptOrRejectRide = catchAsync(async (req: Request, res: Response) => {
   const { rideId } = req.params;
   const action = req.body.action as "accept" | "reject";
-  const driverId = req.user?.userId;
-
+  const driverId = (req as any).user?.userId;
+  //user error line vercel thats why user req as any
   const ride = await Ride.findById(rideId);
 
   if (!ride) {
@@ -116,12 +117,12 @@ const acceptOrRejectRide = catchAsync(async (req: Request, res: Response) => {
   };
 
   if (action === "accept") {
-    ride.status = "accepted";
+    (ride as any).status = "accepted"; //rider error line vercel thats why use rider as any
     ride.driverId = driverId;
     ride.statusTimestamps = ride.statusTimestamps || {};
     ride.statusTimestamps.acceptedAt = new Date();
   } else if (action === "reject") {
-    ride.status = "rejected";
+    (ride as any).status = "rejected"; //rider error line vercel thats why use rider as any
     ride.statusTimestamps = ride.statusTimestamps || {};
     ride.statusTimestamps.rejectedAt = new Date();
   } else {
@@ -141,7 +142,7 @@ const acceptOrRejectRide = catchAsync(async (req: Request, res: Response) => {
 const updateRideStatus = catchAsync(async (req: Request, res: Response) => {
   const { rideId } = req.params;
   const { newStatus } = req.body;
-  const driverId = req.user?.userId?.toString();
+  const driverId = (req as any).user?.userId?.toString(); //user error line vercel thats why use req as any
 
   const allowedStatuses = ["picked_up", "in_transit", "completed"];
   if (!allowedStatuses.includes(newStatus)) {
@@ -199,7 +200,7 @@ const updateRideStatus = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getEarningsHistory = catchAsync(async (req: Request, res: Response) => {
-  const driverId = req.user?.userId?.toString();
+  const driverId = (req as any).user?.userId?.toString(); //user error line vercel thats why user req as any
 
   const completedRides = await Ride.find({
     driverId,
@@ -223,7 +224,7 @@ const getEarningsHistory = catchAsync(async (req: Request, res: Response) => {
 
 const setAvailabilityStatus = catchAsync(
   async (req: Request, res: Response) => {
-    const driverId = req.user?.userId?.toString();
+    const driverId = (req as any).user?.userId?.toString(); //user error line vercel thats why user req as any
     const { availability } = req.body;
 
     if (!["online", "offline"].includes(availability)) {
