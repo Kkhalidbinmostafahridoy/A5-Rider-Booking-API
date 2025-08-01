@@ -38,6 +38,7 @@ export interface IRide {
   };
   status: RideStatus;
   statusTimestamps: {
+    rejectedAt: Date;
     requestedAt: Date;
     acceptedAt?: Date;
     pickedUpAt?: Date;
