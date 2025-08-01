@@ -13,6 +13,8 @@ import {
   createUserTokens,
 } from "../../utils/userTokens";
 import { de } from "zod/v4/locales/index.cjs";
+import { Driver } from "../driver/driver.model";
+import { IDriver } from "../driver/driver.interface";
 
 const credentialsLogin = async (payload: Partial<IUser>) => {
   const { email, password } = payload;
