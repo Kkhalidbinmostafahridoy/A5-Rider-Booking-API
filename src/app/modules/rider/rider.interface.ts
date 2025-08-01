@@ -13,6 +13,8 @@ export enum RideStatus {
   Completed = "completed",
   Cancelled = "cancelled",
   status = "status",
+  driverId = "driverId",
+  statusTimestamps = "statusTimestamps",
 }
 
 export interface IRide {
