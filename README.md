@@ -471,3 +471,72 @@ updatedUser: Applies updates (role-checked)
 checkBlockedStatus: Checks if user is BLOCKED
 
 deleteUser: Admin-only delete
+
+==============================API-Testing List :=================================
+
+🔐 Auth Routes (/api/auth)
+
+Method Endpoint Access Description :-
+
+POST /auth/login Public Login with credentials
+POST /auth/register Public Register new user
+POST /auth/refresh-token Public (Refresh) Get new access token
+POST /auth/logout Authenticated Logout
+POST /auth/reset-Password Admin/Rider/Driver Reset password (logged in users)
+
+👤 User Routes (/api/user) 
+
+Method Endpoint Access Description:- 
+
+POST /user/register Public Register a new user
+GET /user/all-users Admin Get all users
+GET /user/:id Admin Check if user is blocked
+PATCH /user/:id All Roles Update user profile
+DELETE /user/:id Admin Delete user
+
+🚕 Rider Routes (/api/rider)
+
+Method Endpoint Access Description :- 
+
+POST /rider/request Rider Request a ride
+PATCH /rider/:rideId/cancel Rider Cancel a ride
+GET /rider/history Rider Get ride history
+
+🚗 Driver Routes (/api/driver)
+
+Method Endpoint Access Description:- 
+
+POST /driver/drivers Admin, Driver, Rider Register a new driver
+POST /driver/ride/:rideId/action Admin, Rider, Driver Accept or Reject a ride
+PATCH /driver/rides/:rideId/status Admin, Rider, Driver Update ride status (e.g., completed)
+GET /driver/earnings Admin, Rider, Driver Get earnings history
+PATCH /driver/availability Admin, Rider, Driver Set availability status
+
+🏠 Base Endpoint
+
+Method Endpoint Access Description :-
+
+GET / Public Welcome message
+
+⚠️ Error Handlers
+These are middleware, not directly tested, but ensure:
+
+globalErrorHandler: Catches unhandled errors.
+
+notFound: Catches invalid URLs (404).
+
+🔍 API Testing Checklist for Postman
+✅ Test Case
+🔲 Register user   /auth/register
+🔲 Login user    /auth/login
+🔲 Try unauthorized access to  /user/all-users
+🔲 Register as Rider, login, and request ride   /rider/request
+🔲 Cancel a ride   /rider/:rideId/cancel
+🔲 Access   /rider/history as Rider
+🔲 Register as Driver  /driver/drivers
+🔲 Accept ride   /driver/ride/:rideId/action
+🔲 Complete ride   /driver/rides/:rideId/status
+🔲 Check earnings   /driver/earnings
+🔲 Set driver availability   /driver/availability
+🔲 Use /auth/reset-Password with token
+🔲 Get new access token   /auth/refresh-token
