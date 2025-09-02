@@ -14,6 +14,7 @@ interface EnvConfig {
   JWT_ACCESS_EXPIRES: string;
   ADMIN_EMAIL: string;
   ADMIN_PASSWORD: string;
+  FRONTEND_URL?: string;
 }
 
 const loadEnvVariable = (): EnvConfig => {
@@ -28,6 +29,7 @@ const loadEnvVariable = (): EnvConfig => {
     "JWT_ACCESS_EXPIRES",
     "ADMIN_EMAIL",
     "ADMIN_PASSWORD",
+    "FRONTEND_URL",
   ];
 
   requiredEnvVariables.forEach((key) => {
@@ -46,6 +48,7 @@ const loadEnvVariable = (): EnvConfig => {
     JWT_ACCESS_EXPIRES: process.env.JWT_ACCESS_EXPIRES as string,
     ADMIN_EMAIL: process.env.ADMIN_EMAIL as string,
     ADMIN_PASSWORD: process.env.ADMIN_PASSWORD as string,
+    FRONTEND_URL: process.env.FRONTEND_URL as string,
   };
 };
 
