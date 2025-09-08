@@ -119,6 +119,43 @@ export const cancelRide = async (
   }
 };
 
+// export const getRideHistory = catchAsync(
+//   async (req: Request, res: Response) => {
+//     const riderId = req.user?.userId;
+
+//     if (!riderId) {
+//       throw new AppError(401, "Rider ID missing");
+//     }
+
+//     console.log("Fetching ride history for rider ID:", riderId);
+
+//     const rides = await Ride.find({ riderId }).sort({ createdAt: -1 });
+
+//     const totalRequested = rides.filter(
+//       (ride) => ride.status === "requested"
+//     ).length;
+//     const totalCancelled = rides.filter(
+//       (ride) => ride.status === "cancelled"
+//     ).length;
+
+//     const responseData = {
+//       rides,
+//       summary: {
+//         totalRequested,
+//         totalCancelled,
+//         totalRides: rides.length,
+//       },
+//     };
+
+//     sendResponse(res, {
+//       success: true,
+//       message: "Ride history fetched successfully",
+//       statusCode: httpStatus.OK,
+//       data: responseData,
+//     });
+//   }
+// );
+
 export const getRideHistory = catchAsync(
   async (req: Request, res: Response) => {
     const riderId = req.user?.userId;
@@ -129,21 +166,26 @@ export const getRideHistory = catchAsync(
 
     console.log("Fetching ride history for rider ID:", riderId);
 
+    // fetch all rides for this rider
     const rides = await Ride.find({ riderId }).sort({ createdAt: -1 });
 
-    const totalRequested = rides.filter(
-      (ride) => ride.status === "requested"
-    ).length;
-    const totalCancelled = rides.filter(
-      (ride) => ride.status === "cancelled"
-    ).length;
+    // classify
+    const requestedRides = rides.filter((ride) => ride.status === "requested");
+    const cancelledRides = rides.filter((ride) => ride.status === "cancelled");
+    const otherRides = rides.filter(
+      (ride) => ride.status !== "requested" && ride.status !== "cancelled"
+    );
 
     const responseData = {
-      rides,
       summary: {
-        totalRequested,
-        totalCancelled,
+        totalRequested: requestedRides.length,
+        totalCancelled: cancelledRides.length,
         totalRides: rides.length,
+      },
+      details: {
+        requested: requestedRides,
+        cancelled: cancelledRides,
+        others: otherRides,
       },
     };
 
@@ -155,7 +197,6 @@ export const getRideHistory = catchAsync(
     });
   }
 );
-
 export const riderController = {
   requestRide,
   cancelRide,
