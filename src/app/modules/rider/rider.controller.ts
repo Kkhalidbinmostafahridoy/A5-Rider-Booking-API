@@ -23,14 +23,18 @@ export const requestRide = async (
 
     const activeRide = await Ride.findOne({
       riderId,
-      status: {
-        $in: [
-          RideStatus.Requested,
-          RideStatus.Accepted,
-          RideStatus.PickedUp,
-          RideStatus.InTransit,
-        ],
-      },
+
+      // for build error
+      // status: {
+      //   $in: [
+      //     RideStatus.Requested,
+      //     RideStatus.Accepted,
+      //     RideStatus.PickedUp,
+      //     RideStatus.InTransit,
+      //   ],
+      // },
+
+      status: { $in: ["requested", "accepted", "picked_up", "in_transit"] },
     });
 
     if (activeRide) {
@@ -103,7 +107,7 @@ export const cancelRide = async (
       throw new AppError(400, "Cancel window expired (10 mins)");
     }
 
-    ride.status = "cancelled";
+    ride.status = RideStatus.Cancelled;
     ride.statusTimestamps.cancelledAt = new Date();
 
     await ride.save();

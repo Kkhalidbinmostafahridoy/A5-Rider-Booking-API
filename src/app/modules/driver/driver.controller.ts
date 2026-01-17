@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextFunction, Request, Response } from "express";
 import bcryptjs from "bcryptjs";
@@ -12,6 +13,7 @@ import { Role } from "../user/user.interface";
 import { sendResponse } from "../../utils/sendResponse";
 import { Ride } from "../rider/rider.model";
 import { Types } from "mongoose";
+import { RideStatus } from "../rider/rider.interface";
 
 const registerDriver = catchAsync(async (req: Request, res: Response) => {
   const { name, email, password, phone, address, licenseNumber, vehicleInfo } =
@@ -116,12 +118,13 @@ const acceptOrRejectRide = catchAsync(async (req: Request, res: Response) => {
   };
 
   if (action === "accept") {
-    ride.status = "accepted";
-    ride.driverId = driverId;
+    ride.status = RideStatus.Accepted;
+    // ride.driverId = driverId; //for error build
+    ride.driverId = new Types.ObjectId(driverId!);
     ride.statusTimestamps = ride.statusTimestamps || {};
     ride.statusTimestamps.acceptedAt = new Date();
   } else if (action === "reject") {
-    ride.status = "rejected";
+    ride.status = RideStatus.Rejected;
     ride.statusTimestamps = ride.statusTimestamps || {};
     ride.statusTimestamps.rejectedAt = new Date();
   } else {

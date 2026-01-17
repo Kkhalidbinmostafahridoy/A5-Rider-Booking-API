@@ -5,9 +5,12 @@ export interface IAuthProvider {
   providerId: string;
 }
 
+// for build error
+
 export enum RideStatus {
   Requested = "requested",
   Accepted = "accepted",
+  Rejected = "rejected",
   PickedUp = "picked_up",
   InTransit = "in_transit",
   Completed = "completed",
@@ -16,6 +19,16 @@ export enum RideStatus {
   driverId = "driverId",
   statusTimestamps = "statusTimestamps",
 }
+
+// export type RideStatus =
+//   | "pending"
+//   | "requested"
+//   | "accepted"
+//   | "rejected"
+//   | "picked_up"
+//   | "in_transit"
+//   | "cancelled"
+//   | "completed";
 
 export interface IRide {
   name?: string;
@@ -38,7 +51,7 @@ export interface IRide {
   };
   status: RideStatus;
   statusTimestamps: {
-    rejectedAt: Date;
+    rejectedAt?: Date;
     requestedAt: Date;
     acceptedAt?: Date;
     pickedUpAt?: Date;
@@ -47,4 +60,6 @@ export interface IRide {
     cancelledAt?: Date;
   };
   fare?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
 }

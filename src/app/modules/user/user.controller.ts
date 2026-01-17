@@ -61,8 +61,9 @@ const updatedUser = catchAsync(
 const checkBlockedStatus = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
-
+    console.log("Fetching user ID:", id); // <-- log ID
     const user = await User.findById(id);
+    console.log("Found user:", user); // <-- log user object
 
     if (!user) {
       return sendResponse(res, {
@@ -73,7 +74,7 @@ const checkBlockedStatus = catchAsync(
       });
     }
 
-    const isActive = user.isActive;
+    const isActive = user?.isActive;
     const isBlocked = isActive === "BLOCKED";
 
     const message = isBlocked ? " BLOCKED User " : " ACTIVE User ";
